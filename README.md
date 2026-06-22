@@ -1,4 +1,4 @@
-# 🛒 E_COMMERCE_FULL_STACK
+# 🛒 NOVACART AI
 
 **A full-stack e-commerce web application built with the MERN stack (MongoDB, Express, React, Node.js)**
 
@@ -7,7 +7,7 @@
 ## 🚀 Features
 
 - **Product Catalog** with categories, filters, and sorting
-- **User Authentication** (sign‑up, login, OAuth support)
+- **User Authentication** (sign‑up, login)
 - **Shopping Cart**: add, update, and remove items
 - **Payment Integration** Stripe
 - **Order Tracking** and **Order History**
@@ -21,7 +21,7 @@
 
 ## 🌐 Live Demo
 
-> https://e-commerce-full-stack-frontend-gamma.vercel.app/
+> https://novacart-87ux.vercel.app/
 
 ---
 
