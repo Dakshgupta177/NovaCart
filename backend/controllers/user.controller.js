@@ -1,6 +1,8 @@
 import { User } from "../models/user.model.js";
 import bcrypt from "bcrypt";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import nodemailer from "nodemailer";
+import { Request } from "../models/request.model.js";
 
 const generatingAccessAndRefreshTokens = async (userId) => {
   const user = await User.findById(userId);
@@ -34,7 +36,7 @@ export const signupUser = async (req, res) => {
     fullName,
   });
   const createdUser = await User.findById(user._id).select(
-    "-password -refreshToken"
+    "-password -refreshToken",
   );
   if (!createdUser) {
     return res.status(500).json({ message: "User not created" });
@@ -47,7 +49,7 @@ export const signupUser = async (req, res) => {
 
 export const loginUser = async (req, res) => {
   const { emailOrUsername, password } = req.body;
-  
+
   if (!emailOrUsername || !password) {
     return res
       .status(400)
@@ -68,11 +70,11 @@ export const loginUser = async (req, res) => {
     return res.status(400).json({ message: "Invalid credentials" });
   }
   const { accessToken, refreshToken } = await generatingAccessAndRefreshTokens(
-    user._id
+    user._id,
   );
 
   const loggedInUser = await User.findById(user._id).select(
-    "-password -refreshToken"
+    "-password -refreshToken",
   );
   if (!loggedInUser) {
     return res.status(500).json({ message: "User not found" });
@@ -82,7 +84,6 @@ export const loginUser = async (req, res) => {
     secure: true,
     sameSite: "None",
     path: "/",
-    
   };
   res
     .status(200)
@@ -103,7 +104,7 @@ export const logoutUser = async (req, res) => {
       {
         $set: { refreshToken: "undefined" },
       },
-      { new: true }
+      { new: true },
     );
   } catch (error) {
     return res.status(500).json({
@@ -113,7 +114,7 @@ export const logoutUser = async (req, res) => {
   const options = {
     httpOnly: true,
     secure: true,
-    sameSite: "None", 
+    sameSite: "None",
     path: "/",
   };
   return res
@@ -140,7 +141,7 @@ export const refreshAccessToken = async (req, res) => {
     const options = {
       httpOnly: true,
       secure: true,
-      sameSite: "None", 
+      sameSite: "None",
       path: "/",
     };
 
@@ -215,7 +216,7 @@ export const deleteUser = async (req, res) => {
     const options = {
       httpOnly: true,
       secure: true,
-      sameSite: "None", 
+      sameSite: "None",
       path: "/",
     };
     await user.deleteOne({ _id: req.user._id });
@@ -234,26 +235,34 @@ export const deleteUser = async (req, res) => {
 };
 
 export const editUserProfile = async (req, res) => {
-  const { username, fullName, email } = req.body;
+  const { username, fullName, email } = req.body.data;
+  const { id } = req.body;
 
   if (!username && !fullName && !email) {
     return res.status(400).json({
-      message: "Please enter a field to update",
+      message: "Please enter all field to update",
     });
   }
   const user = await User.findById(req.user._id).select(
-    "-password -refreshToken"
+    "-password -refreshToken",
   );
   if (!user) {
     res.status(400).json({
       message: "User not found",
     });
   }
-  const ExistedUser = await User.findOne({ $or: [{ email }, { username }] });
-  if (ExistedUser) {
+  const ExistedUser = await User.findOne({ username });
+  const ExistedEmail = await User.findOne({ email });
+
+  if (ExistedUser && ExistedUser._id.toString() !== id) {
     return res
       .status(400)
-      .json({ message: "Username or email already exists" });
+      .json({ message: "Username already exists" });
+  }
+  if (ExistedEmail && ExistedEmail._id.toString() !== id) {
+    return res
+      .status(400)
+      .json({ message: "Email already exists" });
   }
   if (username) {
     user.username = username;
@@ -289,7 +298,7 @@ export const editUserAvatar = async (req, res) => {
   user.avatar = avatarImage.secure_url;
   await user.save({ validateBeforeSave: true });
   const createdUser = await User.findById(user._id).select(
-    "-password -refreshToken"
+    "-password -refreshToken",
   );
 
   return res.status(200).json({
@@ -320,33 +329,56 @@ export const updateAddress = async (req, res) => {
   user.phone = phone;
   user.city = city;
 
-  const realUser = await User.findOne({ _id: req.user._id }).select(
-    "-password -refreshToken"
-  );
-
   await user.save({ validateBeforeSave: false });
   return res.status(200).json({
     message: "successfully updated",
-    user: realUser,
+    user,
   });
 };
 
-export const adminLogin = async (req, res) => {
-  const user = await User.findOne({ _id: req.user._id });
+export const adminAccess = async (req, res) => {
+  const { email, message, businessName, userId } = req.body;
 
-  if (!user) {
-    return res.status(400).json({
-      message: "unauthorized",
-    });
+  if(!email || !message || !businessName) {
+    return res.status(400).json({ message: "All fields are required" });
   }
-  user.admin = true;
 
-  await user.save({ validateBeforeSave: false });
-  const realUser = await User.findOne({ _id: req.user._id }).select(
-    "-password -refreshToken"
-  );
-  return res.status(200).json({
-    message: "successfully updated",
-    user: realUser,
-  });
+  try {
+    const user = await User.findOne({ _id: req.user._id });
+    
+    if (!user) {
+      return res.status(400).json({
+        message: "unauthorized",
+      });
+    }
+
+    await Request.create({
+      userId,
+      email,
+      message,
+      businessName,
+    });
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USERNAME,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    });
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_USERNAME,
+      to: process.env.EMAIL_USERNAME,
+      subject: "Asking Admin Access",
+      replyTo: email,
+      text: `Message: ${message}\nFrom: ${email}\nBusiness Name: ${businessName}\nUser ID: ${user._id}`,
+    });
+
+    return res.status(200).json({
+      message: "successfully send"
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };

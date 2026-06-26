@@ -1,79 +1,81 @@
-import React, { useState, useEffect } from "react";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import { Outlet, useNavigate } from "react-router-dom";
-import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import { login } from "../store/authSlice";
-import { getProducts } from "../store/productSlice";
+import { useEffect, useState } from "react";
+import { login, stopLoading } from "../store/authSlice";
+import ScrollToTop from "./ScrollToTop";
+import { fetchWishlist } from "../store/cartSlice";
+import api from "../utils/api";
 
 const Layout = () => {
-  let isLogined = useSelector((state) => state.auth.status);
-
-  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [loading, setloading] = useState(true);
+  const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false);
+  const isLogined = useSelector((state) => state.auth.status);
+  const loadingState = useSelector((state) => state.auth.isLoading);
   const getUser = async () => {
     try {
-      const response = await axios.get("/api/product/getallproducts", {
+      setLoading(true);
+      const response = await api.get("/api/user/userprofile", {
         headers: {
           "Content-Type": "application/json",
         },
         withCredentials: true,
       });
-      console.log(response);
-      
-      const Products = response.data.products;
-      dispatch(getProducts({ products: Products }));
-    } catch (error) {
-      console.log(error || "Products not found");
-    }
-    try {
-      setloading(true);
-      const response = await axios.get("/api/user/userprofile", {
-        headers: {
-          "Content-Type": "application/json",
+      await api.post(
+        "/api/user/refresh/token",
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
         },
-        withCredentials: true,
-      }
       );
-      await axios.post("/api/user/refresh/token",{}, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        withCredentials: true,
-      });
-
-      dispatch(login({ userData: response.data.data }));
-      setloading(false);
+      dispatch(login({ userData: response?.data?.data }));
     } catch (error) {
-      setloading(true);
-      setTimeout(() => {
-        navigate("/user/signup");
-        setloading(false);
-      }, 2000);
-      throw new Error(error.response.data.message);
+      navigate("/user/signup");
+      console.log(error);
+    } finally {
+      dispatch(stopLoading());
+      setLoading(false);
     }
   };
+
+    const getWishlistDetails = async () => {
+    try {
+      const response = await api.get("/api/wishlist/wishlistdetails", {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      });
+      dispatch(fetchWishlist({ WishlistItems: response.data.data }));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
-    getUser();
-    setloading(false);
+    if (!isLogined) {
+      getUser();
+      getWishlistDetails();
+    }
   }, [isLogined]);
 
   return (
     <div>
-      {loading ? (
-        <img
-          src="https://i.gifer.com/ZKZg.gif"
-          className="size-12 fixed top-1/2 left-1/2 z-50"
-          alt="Loading..."
-        />
-      ) : null}
-      <Navbar />
-      <main className="bg-[#f9f9f9] dark:bg-zinc-950 text-black dark:text-white min-h-screen">
-        <Outlet />
-      </main>
-      <Footer />
+      <ScrollToTop />
+      {!loadingState && (
+        <>
+          <Navbar />
+          <main className="bg-[#f9f9f9] dark:bg-zinc-950 text-black dark:text-white min-h-screen">
+            <Outlet />
+          </main>
+          <Footer />
+        </>
+      )}
     </div>
   );
 };

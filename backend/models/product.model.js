@@ -6,6 +6,7 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
+      index: true,
     },
     description: {
       type: String,
@@ -20,11 +21,31 @@ const productSchema = new mongoose.Schema(
     company: {
       type: String,
       trim: true,
+      index: true,
     },
-    category: {
+    category: { 
       type: String,
       required: true,
       trim: true,
+      index: true
+    },
+    tags: [{ type: String, trim: true }],
+    sizes:{
+      width: {
+        required: true,
+        type: Number,
+        trim: true,
+      },
+      height: {
+        required: true,
+        type: Number,
+        trim: true,
+      },
+      depth: {
+        required: true,
+        type: Number,
+        trim: true,
+      }
     },
     reviews: [
       {
@@ -36,7 +57,11 @@ const productSchema = new mongoose.Schema(
           type: String,
           required: true,
         },
-        reviewer_name: {
+        reviewerName: {
+          type: String,
+          required: true,
+        },
+        reviewerEmail: {
           type: String,
           required: true,
         },
@@ -59,7 +84,7 @@ const productSchema = new mongoose.Schema(
     },
     images: [{ type: String, required: true }],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export const Product = mongoose.model("Product", productSchema);

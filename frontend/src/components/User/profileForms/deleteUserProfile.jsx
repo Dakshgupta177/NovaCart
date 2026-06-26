@@ -1,15 +1,15 @@
 import React, { useState } from "react";
-import { useForm } from "react-hook-form";
-import axios from "axios";
+import { set, useForm } from "react-hook-form";
 import { logout } from "../../../store/authSlice";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import api from "../../../utils/api";
 
 export const DeleteProfile = () => {
   const [loading, setloading] = useState(false);
   const [error, seterror] = useState("");
   const dispatch = useDispatch();
-  const Navigate= useNavigate()
+  const Navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -19,7 +19,7 @@ export const DeleteProfile = () => {
   const onSubmit = async (data) => {
     setloading(true);
     try {
-      const response = await axios.post("/api/user/deleteuser", data, {
+      const response = await api.post("/api/user/deleteuser", data, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -27,13 +27,14 @@ export const DeleteProfile = () => {
       });
       dispatch(logout());
       seterror(response.data.message);
-      setloading(false);
-      setTimeout(() => {
-        Navigate("/user/login")
-      }, 2000);
+      Navigate("/user/login");
     } catch (error) {
       seterror(error.response.data.message);
+    } finally {
       setloading(false);
+      setTimeout(() => {
+        seterror("");
+      }, 3000);
     }
   };
   return (
@@ -67,6 +68,7 @@ export const DeleteProfile = () => {
               {...register("password", { required: true })}
               className={`bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500 `}
               id="password"
+              placeholder="********"
               type="password"
             />
             <h4>
@@ -77,7 +79,7 @@ export const DeleteProfile = () => {
           </div>
         </div>
         <button
-          className="bg-red-600 hover:bg-red-700 my-4 text-white font-bold py-2 px-4 w-48 rounded focus:outline-none focus:shadow-outline"
+          className="bg-red-600 cursor-pointer hover:bg-red-700 my-4 text-white font-bold py-2 px-4 w-48 rounded focus:outline-none focus:shadow-outline"
           onClick={onSubmit}
         >
           Delete Account

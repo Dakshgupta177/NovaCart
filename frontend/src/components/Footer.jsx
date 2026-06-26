@@ -12,7 +12,7 @@ const Footer = () => {
             <ul className="text-gray-500 dark:text-gray-400 font-medium">
               <li className="mb-4">
                 <a
-                  href="https://www.instagram.com/daksh_gupta_7_7_7_7_7_7_7?igsh=MXcwanBrM21sbXI0cg=="
+                  href="https://www.linkedin.com/in/daksh-gupta-b51143372"
                   className=" hover:underline"
                 >
                   About
@@ -20,7 +20,7 @@ const Footer = () => {
               </li>
               <li className="mb-4">
                 <a
-                  href="https://www.instagram.com/daksh_gupta_7_7_7_7_7_7_7?igsh=MXcwanBrM21sbXI0cg=="
+                  href="https://www.linkedin.com/in/daksh-gupta-b51143372"
                   className="hover:underline"
                 >
                   Careers
@@ -28,7 +28,7 @@ const Footer = () => {
               </li>
               <li className="mb-4">
                 <a
-                  href="https://www.instagram.com/daksh_gupta_7_7_7_7_7_7_7?igsh=MXcwanBrM21sbXI0cg=="
+                  href="https://www.linkedin.com/in/daksh-gupta-b51143372"
                   className="hover:underline"
                 >
                   Brand Center
@@ -36,7 +36,7 @@ const Footer = () => {
               </li>
               <li className="mb-4">
                 <a
-                  href="https://www.instagram.com/daksh_gupta_7_7_7_7_7_7_7?igsh=MXcwanBrM21sbXI0cg=="
+                  href="https://www.linkedin.com/in/daksh-gupta-b51143372"
                   className="hover:underline"
                 >
                   Blog
@@ -51,7 +51,7 @@ const Footer = () => {
             <ul className="text-gray-500 dark:text-gray-400 font-medium">
               <li className="mb-4">
                 <a
-                  href="https://www.instagram.com/daksh_gupta_7_7_7_7_7_7_7?igsh=MXcwanBrM21sbXI0cg=="
+                  href="https://www.linkedin.com/in/daksh-gupta-b51143372"
                   className="hover:underline"
                 >
                   Discord Server
@@ -59,7 +59,7 @@ const Footer = () => {
               </li>
               <li className="mb-4">
                 <a
-                  href="https://www.instagram.com/daksh_gupta_7_7_7_7_7_7_7?igsh=MXcwanBrM21sbXI0cg=="
+                  href="https://www.linkedin.com/in/daksh-gupta-b51143372"
                   className="hover:underline"
                 >
                   Twitter
@@ -67,7 +67,7 @@ const Footer = () => {
               </li>
               <li className="mb-4">
                 <a
-                  href="https://www.instagram.com/daksh_gupta_7_7_7_7_7_7_7?igsh=MXcwanBrM21sbXI0cg=="
+                  href="https://www.linkedin.com/in/daksh-gupta-b51143372"
                   className="hover:underline"
                 >
                   Facebook
@@ -75,7 +75,7 @@ const Footer = () => {
               </li>
               <li className="mb-4">
                 <a
-                  href="https://www.instagram.com/daksh_gupta_7_7_7_7_7_7_7?igsh=MXcwanBrM21sbXI0cg=="
+                  href="https://www.linkedin.com/in/daksh-gupta-b51143372"
                   className="hover:underline"
                 >
                   Contact Us
@@ -90,7 +90,7 @@ const Footer = () => {
             <ul className="text-gray-500 dark:text-gray-400 font-medium">
               <li className="mb-4">
                 <a
-                  href="https://www.instagram.com/daksh_gupta_7_7_7_7_7_7_7?igsh=MXcwanBrM21sbXI0cg=="
+                  href="https://www.linkedin.com/in/daksh-gupta-b51143372"
                   className="hover:underline"
                 >
                   Privacy Policy
@@ -98,7 +98,7 @@ const Footer = () => {
               </li>
               <li className="mb-4">
                 <a
-                  href="https://www.instagram.com/daksh_gupta_7_7_7_7_7_7_7?igsh=MXcwanBrM21sbXI0cg=="
+                  href="https://www.linkedin.com/in/daksh-gupta-b51143372"
                   className="hover:underline"
                 >
                   Licensing
@@ -106,7 +106,7 @@ const Footer = () => {
               </li>
               <li className="mb-4">
                 <a
-                  href="https://www.instagram.com/daksh_gupta_7_7_7_7_7_7_7?igsh=MXcwanBrM21sbXI0cg=="
+                  href="https://www.linkedin.com/in/daksh-gupta-b51143372"
                   className="hover:underline"
                 >
                   Terms &amp; Conditions

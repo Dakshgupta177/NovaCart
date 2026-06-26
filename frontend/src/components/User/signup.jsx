@@ -1,16 +1,16 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import api from "../../utils/api";
 
 const Signup = () => {
   const [submit, setsubmit] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, seterror] = useState("something went wrong");
   const [isSignin, setisSignin] = useState(false);
-  const navigate= useNavigate();
-  const user = useSelector((state)=>state.auth.status)
+  const navigate = useNavigate();
+  const isLogined = useSelector((state) => state.auth.status);
   const {
     register,
     handleSubmit,
@@ -19,29 +19,59 @@ const Signup = () => {
   const closePopup = () => {
     setsubmit(false);
   };
+
+  const fields = [
+    {
+      name: "fullName",
+      title: "Full Name",
+      errors: errors.fullName,
+      placeholder: "eg. John Doe",
+      errorMessage: "Should be at least 3 characters",
+    },
+    {
+      name: "username",
+      title: "Username",
+      errors: errors.username,
+      placeholder: "eg. johndoe123",
+      errorMessage: "Should be at least 3 characters",
+    },
+    {
+      name: "email",
+      title: "Email",
+      errors: errors.email,
+      placeholder: "eg. example@gmail.com",
+      errorMessage: "Should be a valid email",
+    },
+    {
+      name: "password",
+      title: "Password",
+      errors: errors.password,
+      placeholder: "********",
+      errorMessage: "Should be at least 8 characters",
+    },
+  ];
+
   useEffect(() => {
-   if (user) {
-    navigate("/")
-   }
-  }, [])
-  
+    if (isLogined) {
+      navigate("/");
+    }
+  }, [isLogined]);
+
   const onSubmit = async (data) => {
-    setsubmit(true);
     setLoading(true);
     try {
-      const dat = await axios.post(
-        "/api/user/signup",
-        data, {
+      const dat = await api.post("/api/user/signup", data, {
         headers: {
           "Content-Type": "application/json",
         },
         withCredentials: true,
-      }
-      );
+      });
       seterror(dat.data.message);
       setisSignin(true);
+      setsubmit(true);
       setLoading(false);
     } catch (error) {
+      setsubmit(true);
       setLoading(false);
       console.log("Response", error.response.data);
       seterror(error.response.data.message || "something went wrong");
@@ -79,105 +109,47 @@ const Signup = () => {
       </div>
     </div>
   ) : (
-    <div className="min-h-[90vh] w-screen  dark:bg-zinc-950 flex flex-col items-center">
-      <h1 className="text-4xl my-24 font-extrabold text-zinc-800 dark:text-white">Signup User</h1>
+    <div className="min-h-[90vh] dark:bg-zinc-950 flex flex-col items-center">
+      <h1 className="text-4xl my-16 font-extrabold text-zinc-800 dark:text-white">
+        Signup User
+      </h1>
       <form
-        className="w-full max-w-sm mx-auto flex flex-col "
+        className="w-full max-w-sm mx-auto flex flex-col px-8"
         onSubmit={handleSubmit(onSubmit)}
       >
-        <div className="md:flex md:items-center mb-6">
-          <div className="md:w-1/3">
-            <label
-              className="block text-gray-600 font-bold md:text-right mb-1 md:mb-0 pr-4"
-              htmlFor="fullName"
-            >
-              FullName
-            </label>
+        {fields.map((i) => (
+          <div key={i.name}>
+            <div className="md:flex md:items-center mt-6">
+              <div className="md:w-1/3 ">
+                <label
+                  className="block text-gray-600 font-bold md:text-right mb-1 md:mb-0 pr-4"
+                  htmlFor={i.name}
+                >
+                  {i.title}
+                </label>
+              </div>
+              <div className="md:w-2/3 flex flex-col">
+                <input
+                  {...register(i.name, {
+                    minLength: i.name === "password" ? 8 : 3,
+                    pattern: i.name === "email" ? /^\S+@\S+$/i : undefined,
+                    required: true,
+                  })}
+                  placeholder={i.placeholder}
+                  className="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500"
+                  id={i.name}
+                  type={i.name == "password" ? "password" : "text"}
+                />
+              </div>
+            </div>
+            <h4 className="mt-1 text-center">
+              {i.errors && (
+                <span className="text-red-500 ">{i.errorMessage}</span>
+              )}
+            </h4>
           </div>
-          <div className="md:w-2/3">
-            <input
-              {...register("fullName", { required: true })}
-              className="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500"
-              id="fullName"
-              type="text"
-            />
-          </div>
-          <h4>
-            {errors.fullName && (
-              <span className="text-red-500 ">This field is required</span>
-            )}
-          </h4>
-        </div>
-        <div className="md:flex md:items-center mb-6">
-          <div className="md:w-1/3">
-            <label
-              className="block text-gray-600 font-bold md:text-right mb-1 md:mb-0 pr-4"
-              htmlFor="username"
-            >
-              Username
-            </label>
-          </div>
-          <div className="md:w-2/3">
-            <input
-              {...register("username", { required: true })}
-              className="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500"
-              id="username"
-              type="text"
-            />
-          </div>
-          <h4>
-            {errors.username && (
-              <span className="text-red-500">This field is required</span>
-            )}
-          </h4>
-        </div>
-        <div className="md:flex md:items-center mb-6">
-          <div className="md:w-1/3">
-            <label
-              className="block text-gray-600 font-bold md:text-right mb-1 md:mb-0 pr-4"
-              htmlFor="email"
-            >
-              Email
-            </label>
-          </div>
-          <div className="md:w-2/3">
-            <input
-              {...register("email", { required: true ,pattern: /^\S+@\S+$/i ,unique: true})}
-              className="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500"
-              id="email"
-              type="text"
-            />
-          </div>
-          <h4>
-            {errors.email && (
-              <span className="text-red-500 ">This field is required</span>
-            )}
-          </h4>
-        </div>
-        <div className="md:flex md:items-center mb-6">
-          <div className="md:w-1/3">
-            <label
-              className="block text-gray-600 font-bold md:text-right mb-1 md:mb-0 pr-4"
-              htmlFor="password"
-            >
-              Password
-            </label>
-          </div>
-          <div className="md:w-2/3">
-            <input
-              {...register("password", { required: true })}
-              className="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500"
-              id="password"
-              type="password"
-            />
-          </div>
-          <h4>
-            {errors.username && (
-              <span className="text-red-500">This field is required</span>
-            )}
-          </h4>
-        </div>
-        <div className="flex items-center justify-center">
+        ))}
+        <div className="flex items-center justify-center mt-6">
           <button
             className="shadow bg-purple-500 hover:bg-purple-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded"
             type="submit"
