@@ -33,7 +33,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-// app.set("trust proxy", 1)
+app.set("trust proxy", 1)
 app.use(limiter);
 app.use(express.json({ limit: "1mb" })); // increase limit as necessary
 app.use(express.urlencoded({ extended: true, limit: "1mb" }));
