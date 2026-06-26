@@ -2,7 +2,7 @@
   "rewrites": [
   {
     "source": "/api/:path*",
-    "destination": "https://e-commerce-full-stack-backend-7by3.onrender.com/api/:path*"
+    "destination": "https://novacart-bnwg.onrender.com/api/:path*"
   },
   {
     "source": "/(.*)",
