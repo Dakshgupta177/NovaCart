@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import api from "../utils/api";
 
 export const AddProduct = () => {
   const navigate = useNavigate();
@@ -25,11 +25,9 @@ export const AddProduct = () => {
   };
   useEffect(() => {
     setloading(false);
-    setTimeout(() => {
-      if (!isAdmin) {
-        navigate("/adminlogin");
-      }
-    }, 2000);
+    if (!isAdmin) {
+      navigate("/admin-request");
+    }
   }, []);
 
   const {
@@ -51,12 +49,12 @@ export const AddProduct = () => {
     formData.append("items", data.items);
 
     try {
-      const response = await axios.post(
+      const response = await api.post(
         "/api/product/createproduct",
         formData,
         {
           withCredentials: true,
-        }
+        },
       );
       seterror(response.data.message);
       fileSubmit();
@@ -139,7 +137,7 @@ export const AddProduct = () => {
             id: "price",
             type: "number",
             required: true,
-            rules: { required: true, valueAsNumber: true ,min: 50 },
+            rules: { required: true, valueAsNumber: true, min: 50 },
           },
           {
             label: "Category",
@@ -164,10 +162,10 @@ export const AddProduct = () => {
             {errors[id] && (
               <p className="text-sm text-red-500">
                 {id === "description"
-                   ? "This field is required. Description should be longer."
-                   : id === "price"
-                   ? "Price should be at least 50"
-                   : "This field is required"}
+                  ? "This field is required. Description should be longer."
+                  : id === "price"
+                    ? "Price should be at least 50"
+                    : "This field is required"}
               </p>
             )}
           </div>

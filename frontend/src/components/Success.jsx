@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { FaCheckCircle } from "react-icons/fa";
-import axios from "axios";
+import api from "../utils/api";
+import { toast } from "react-toastify";
 
 const Success = () => {
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get("session_id");
-  const [loading, setloading] = useState(true);
+  const [loading, setloading] = useState(false);
   const getPaymentDetails = async () => {
     setloading(true);
     try {
-      const response = await axios.post("/api/stripe/verifypayment", {
+      const response = await api.post("/api/stripe/verifypayment", {
         sessionId,
       }, {
         headers: {
@@ -26,7 +27,7 @@ const Success = () => {
     }
   };
   useEffect(() => {
-    setloading(false);
+    toast.info("Order Might take some time to reflect in your order history. Please check after a few minutes.");
     getPaymentDetails();
   }, [sessionId]);
 

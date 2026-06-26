@@ -3,8 +3,8 @@ import { login, logout } from "../store/authSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { PiShoppingCart } from "react-icons/pi";
-import axios from "axios";
-import { totalAmount } from "../store/cartSlice";
+import { fetchWishlist, totalAmount } from "../store/cartSlice";
+import api from "../utils/api";
 
 const Navbar = () => {
   const dispatch = useDispatch();
@@ -17,7 +17,7 @@ const Navbar = () => {
   const getCartItems = async () => {
     setloading(true);
     try {
-      const response = await axios.get("/api/cart/getcartdetails", {
+      const response = await api.get("/api/cart/getcartdetails", {
         headers: {
           "Content-Type": "application/json",
         },
@@ -31,15 +31,20 @@ const Navbar = () => {
       setloading(false);
     }
   };
+
   const handleLogout = async () => {
     setloading(true);
     try {
-      await axios.post("/api/user/logout",{}, {
-        headers: {
-          "Content-Type": "application/json",
+      await api.post(
+        "/api/user/logout",
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
         },
-        withCredentials: true,
-      });
+      );
       dispatch(logout());
       setshowdropdown(false);
     } finally {
@@ -47,7 +52,6 @@ const Navbar = () => {
     }
   };
   useEffect(() => {
-    setloading(false);
     getCartItems();
   }, [isLogined]);
 
@@ -65,30 +69,35 @@ const Navbar = () => {
           <div className="relative flex h-16 items-center justify-between">
             <div>
               <Link to={"/"}>
-                <img src={"/logo.jpg"} className="size-12 rounded" />
+                <img src={"/logo.png"} className="size-12 rounded" />
               </Link>
             </div>
             <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
               <div className="hidden sm:ml-6 sm:block">
                 <div className="flex space-x-4">
                   <Link
-                    to="/adminlogin"
-                    className="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white"
-                    aria-current="page"
-                  >
-                    Admin Login
-                  </Link>
-                  <Link
-                    to="/products/addproduct"
+                    to="/explore"
                     className="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
                   >
-                    Add Product
+                    Explore
                   </Link>
                   <Link
                     to="/orders"
                     className="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
                   >
                     Orders
+                  </Link>
+                  <Link
+                    to="/wishlist"
+                    className="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+                  >
+                    Wishlist
+                  </Link>
+                  <Link
+                    to="/smart-search"
+                    className="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+                  >
+                    Smart Search
                   </Link>
                 </div>
               </div>
@@ -119,7 +128,7 @@ const Navbar = () => {
                       </div>
                       <button
                         type="button"
-                        className="relative flex rounded-full bg-gray-800 text-sm focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden"
+                        className="relative flex rounded-full cursor-pointer bg-gray-800 text-sm focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden"
                         id="user-menu-button"
                         aria-expanded="false"
                         aria-haspopup="true"
@@ -174,25 +183,46 @@ const Navbar = () => {
                     Orders
                   </Link>
                   <Link
-                    to="/adminlogin"
+                    to="/wishlist"
                     className="block px-4 py-2 text-sm text-gray-700"
                     role="menuitem"
                     tabIndex="-1"
                     id="user-menu-item-0"
                   >
-                    Admin Login
+                    Wishlist
                   </Link>
                   <Link
-                    to="/products/addproduct"
+                    to="/smart-search"
                     className="block px-4 py-2 text-sm text-gray-700"
                     role="menuitem"
                     tabIndex="-1"
                     id="user-menu-item-0"
                   >
-                    Add Product
+                    Smart Search
                   </Link>
+                  {!user?.admin ? (
+                    <Link
+                      to="/admin-request"
+                      className="block px-4 py-2 text-sm text-gray-700"
+                      role="menuitem"
+                      tabIndex="-1"
+                      id="user-menu-item-0"
+                    >
+                      Request Admin Access
+                    </Link>
+                  ) : (
+                    <Link
+                      to="/products/addproduct"
+                      className="block px-4 py-2 text-sm text-gray-700"
+                      role="menuitem"
+                      tabIndex="-1"
+                      id="user-menu-item-0"
+                    >
+                      Add Product
+                    </Link>
+                  )}
                   <button
-                    className="block px-4 py-2 text-sm text-gray-700 w-full text-left"
+                    className="block px-4 py-2 cursor-pointer text-sm text-gray-700 w-full text-left"
                     onClick={handleLogout}
                   >
                     Sign out

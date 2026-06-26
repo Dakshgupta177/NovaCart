@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import axios from "axios";
+import api from "../../../utils/api";
 
 export const FormTwo = () => {
   const [loading, setloading] = useState(false);
@@ -14,16 +14,19 @@ export const FormTwo = () => {
   const onSubmit = async (data) => {
     setloading(true);
     try {
-      const response = await axios.post("/api/user/changepassword", data, {
+      const response = await api.post("/api/user/changepassword", data, {
         withCredentials: true,
       });
       console.log(response.data);
       seterror(response.data.message);
-      setloading(false);
     } catch (error) {
       console.log(error);
       seterror(error.response.data.message);
+    } finally {
       setloading(false);
+      setTimeout(() => {
+        seterror("");
+      }, 3000);
     }
   };
 
@@ -51,9 +54,10 @@ export const FormTwo = () => {
           </div>
           <div className="md:w-2/3 flex flex-col">
             <input
-              {...register("oldpassword", { required: true })}
+              {...register("oldpassword", { required: true, minLength: 8 })}
               className={`bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500 `}
               id="oldpassword"
+              placeholder="********"
               type="password"
             />
             <h4>
@@ -77,6 +81,7 @@ export const FormTwo = () => {
               {...register("newpassword", { required: true })}
               className={`bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500`}
               id="new password"
+              placeholder="********"
               type="password"
             />
             <h4>
@@ -99,9 +104,11 @@ export const FormTwo = () => {
             <input
               {...register("confirmpassword", {
                 required: true,
+                minLength: 8,
               })}
               className={`bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500 `}
               id="confirmpassword"
+              placeholder="********"
               type="password"
             />
             <h4>
@@ -113,7 +120,7 @@ export const FormTwo = () => {
         </div>
         <div className="flex items-center justify-center">
           <button
-            className={`shadow bg-purple-500 hover:bg-purple-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded disabled:opacity-50 disabled:hover:bg-purple-500`}
+            className={`shadow bg-purple-500 cursor-pointer hover:bg-purple-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded disabled:opacity-50 disabled:hover:bg-purple-500`}
             disabled={
               errors.oldpassword || errors.newpassword || errors.confirmpassword
             }

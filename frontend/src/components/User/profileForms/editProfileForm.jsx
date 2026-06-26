@@ -2,14 +2,15 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "../../../store/authSlice";
-import axios from "axios";
+import api from "../../../utils/api";
 
 export const FormOne = () => {
-  const user = useSelector((state) => state.auth);
+  let user = useSelector((state) => state.auth);
   const [loading, setloading] = useState(false);
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm();
   const dispatch = useDispatch();
@@ -18,7 +19,7 @@ export const FormOne = () => {
   const onSubmit = async (data) => {
     setloading(true);
     try {
-      const response = await axios.post("/api/user/editUserProfile", data, {
+      const response = await api.post("/api/user/editUserProfile", {data, id: user.userData._id}, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -26,12 +27,16 @@ export const FormOne = () => {
       });
       seterror(response.data.message);
       dispatch(login({ userData: response.data.data }));
-      setloading(false);
       setedit(false);
+      reset();
     } catch (error) {
       console.error("Error updating profile:", error);
-      setloading(false);
       seterror(error.response.data.message);
+    } finally {
+      setloading(false);
+      setTimeout(() => {
+        seterror("");
+      }, 3000);
     }
   };
   const editProfile = () => {
@@ -61,10 +66,11 @@ export const FormOne = () => {
           </div>
           <div className="md:w-2/3 flex flex-col">
             <input
-              {...register("fullName", { required: true })}
+              {...register("fullName", { required: true, minLength: 3})}
               className={`bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500 ${
                 !edit ? "hidden" : ""
               }`}
+              placeholder="Full Name"
               id="fullName"
               type="text"
             />
@@ -93,7 +99,8 @@ export const FormOne = () => {
           </div>
           <div className="md:w-2/3 flex flex-col">
             <input
-              {...register("username", { required: true })}
+              {...register("username", { required: true, minLength: 3 })}
+              placeholder="Username"
               className={`bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500 ${
                 !edit ? "hidden" : ""
               }`}
@@ -128,8 +135,9 @@ export const FormOne = () => {
               {...register("email", {
                 required: true,
                 pattern: /^\S+@\S+$/i,
-                unique: true,
+                minLength: 3,
               })}
+              placeholder="Email"
               className={`bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500 ${
                 !edit ? "hidden" : ""
               }`}
@@ -154,17 +162,16 @@ export const FormOne = () => {
         </div>
         <div className="flex items-center justify-center">
           <button
-            className={`shadow bg-purple-500 hover:bg-purple-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded ${
+            className={`shadow bg-purple-500 hover:bg-purple-400 cursor-pointer focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded ${
               !edit ? "hidden" : ""
             } disabled:opacity-50 disabled:hover:bg-purple-500`}
-            onClick={onSubmit}
             disabled={errors.fullName || errors.username || errors.email}
             type="submit"
           >
             <h3>Save</h3>
           </button>
           <div
-            className={`shadow bg-purple-500 hover:bg-purple-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded ${
+            className={`shadow bg-purple-500 hover:bg-purple-400 cursor-pointer focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded ${
               edit ? "hidden" : ""
             }`}
             onClick={editProfile}

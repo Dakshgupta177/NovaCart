@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { adminLogin, changeCurrentUserPassword, deleteUser, editUserAvatar, editUserProfile, getUserProfile, loginUser, logoutUser, refreshAccessToken, signupUser, updateAddress } from "../controllers/user.controller.js";
+import { adminAccess, changeCurrentUserPassword, deleteUser, editUserAvatar, editUserProfile, getUserProfile, loginUser, logoutUser, refreshAccessToken, signupUser, updateAddress } from "../controllers/user.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
 
@@ -15,5 +15,5 @@ router.route("/userprofile").get(verifyJWT,getUserProfile)
 router.route("/edituserprofile").post(verifyJWT,editUserProfile)
 router.route("/edituseravatar").post(verifyJWT,upload.single('avatar'),editUserAvatar)
 router.route("/updateaddress").post(verifyJWT,updateAddress)
-router.route("/adminlogin").post(verifyJWT,adminLogin)
+router.route("/adminaccess").post(verifyJWT,adminAccess)
 export default router;           
