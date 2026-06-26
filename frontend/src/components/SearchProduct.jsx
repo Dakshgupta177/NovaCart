@@ -88,7 +88,6 @@ const SearchProduct = () => {
     try {
       const Products = await api.get(
         `/api/product/searchproducts?name=${params.item}`,
-        {},
         {
           headers: {
             "Content-Type": "application/json",

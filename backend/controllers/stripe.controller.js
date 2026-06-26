@@ -13,15 +13,22 @@ export const makeOnePayment = async (req, res) => {
       return res.status(400).json({ message: "Product is required" });
     }
     const products = Array.isArray(product) ? product : [product];
-    products.forEach((item) => {
+
+    for (const item of products) {
       item.quantity = item.quantity || 1;
-      const prod = Product.findById(item._id);
-      if (prod.items < item.quantity)
+
+      const prod = await Product.findById(item._id);
+
+      if (!prod) {
+        return res.status(404).json({ message: `${item.name} not found` });
+      }
+
+      if (prod.items < item.quantity) {
         return res
           .status(400)
           .json({ message: `Not enough stock for ${item.name}` });
-    });
-
+      }
+    }
     const lineItems = products.map((item) => ({
       price_data: {
         currency: "inr",

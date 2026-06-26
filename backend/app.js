@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
-import { rateLimit } from 'express-rate-limit'
+import rateLimit from 'express-rate-limit'
 import { cronJob } from "./cron.js";
 dotenv.config();
 

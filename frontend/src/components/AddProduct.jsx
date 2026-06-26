@@ -26,7 +26,7 @@ export const AddProduct = () => {
   useEffect(() => {
     setloading(false);
     if (!isAdmin) {
-      navigate("/adminlogin");
+      navigate("/admin-request");
     }
   }, []);
 

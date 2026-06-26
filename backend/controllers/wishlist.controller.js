@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { Wishlist } from "../models/wishlist.model.js";
 
 export const toggleWishlist = async (req, res) => {
@@ -8,7 +9,9 @@ export const toggleWishlist = async (req, res) => {
     }
     const wishlist = await Wishlist.findOne({ userId: req.user._id });
     if (wishlist) {
-      const productExists = wishlist.products.includes(productId);
+      const productExists = wishlist.products.some((id) =>
+        id.equals(productId),
+      );
       if (productExists) {
         wishlist.products.pull(productId);
       } else {
@@ -16,7 +19,7 @@ export const toggleWishlist = async (req, res) => {
       }
       await wishlist.save();
     } else {
-      const newWishlist = Wishlist.create({
+      const newWishlist = await Wishlist.create({
         userId: req.user._id,
         products: [productId],
       });
@@ -31,7 +34,10 @@ export const toggleWishlist = async (req, res) => {
 
 export const getWishlistDetails = async (req, res) => {
   try {
-    const wishlist = await Wishlist.findOne({ userId: req.user._id }).populate("products").select("name price image description _id");
+    const wishlist = await Wishlist.findOne({ userId: req.user._id }).populate({
+      path: "products",
+      select: "name price image description",
+    });
     return res
       .status(200)
       .json({ message: "Successfully fetched", data: wishlist.products });
