@@ -2,7 +2,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 const api = axios.create({
-  baseURL:  import.meta.env.VITE_BACKEND_URL || "http://localhost:8000",
+  baseURL:  "https://novacart-bnwg.onrender.com",
   withCredentials: true,
 });
 
