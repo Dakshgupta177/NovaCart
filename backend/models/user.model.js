@@ -56,12 +56,6 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-userSchema.pre("save", async function (next) {
-  if (this.isModified("password")) {
-    this.password = bcrypt.hash(this.password, 12);
-  }
-  return next();
-});
 userSchema.methods.checkPassword = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
