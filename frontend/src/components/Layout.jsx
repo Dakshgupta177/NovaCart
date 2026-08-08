@@ -43,7 +43,7 @@ const Layout = () => {
     }
   };
 
-    const getWishlistDetails = async () => {
+  const getWishlistDetails = async () => {
     try {
       const response = await api.get("/api/wishlist/wishlistdetails", {
         headers: {
@@ -67,15 +67,23 @@ const Layout = () => {
   return (
     <div>
       <ScrollToTop />
-      {!loadingState && (
-        <>
-          <Navbar />
-          <main className="bg-[#f9f9f9] dark:bg-zinc-950 text-black dark:text-white min-h-screen">
+      <>
+        <Navbar />
+        <main className="bg-[#f9f9f9] dark:bg-zinc-950 text-black dark:text-white min-h-screen">
+          {!loadingState ? (
             <Outlet />
-          </main>
-          <Footer />
-        </>
-      )}
+          ) : (
+            loading && (
+              <img
+                src="https://i.gifer.com/ZKZg.gif"
+                className="size-12 fixed top-1/2 left-1/2 z-50"
+                alt="Loading..."
+              />
+            )
+          )}
+        </main>
+        <Footer />
+      </>
     </div>
   );
 };

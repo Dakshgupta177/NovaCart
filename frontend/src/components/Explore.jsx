@@ -23,16 +23,20 @@ const Explore = () => {
   const dispatch = useDispatch();
   const [selected, setSelected] = useState("Electronics");
   const [filteredProducts, setFilteredProducts] = useState([]);
+  const [load, setLoad] = useState(false);
   const Products = useSelector((state) => state.products.exploreProducts);
 
   const fetchExploreProducts = async () => {
     try {
+      setLoad(true);
       const { data } = await api.get("/api/product/exploreproducts");
       dispatch(storeExploreProducts({ exploreProducts: data.products }));
       filterProducts();
       toast.success("Products fetched successfully");
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoad(false);
     }
   };
 
@@ -80,7 +84,7 @@ const Explore = () => {
     }
   }, [Products, selected]);
 
-  return (
+  return load ? (
     <div className="min-h-screen px-4 py-8">
       {/* Category Buttons */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto mb-10">
@@ -128,6 +132,14 @@ const Explore = () => {
         </div>
       </div>
     </div>
+  ) : (
+    loading && (
+      <img
+        src="https://i.gifer.com/ZKZg.gif"
+        className="size-12 fixed top-1/2 left-1/2 z-50"
+        alt="Loading..."
+      />
+    )
   );
 };
 

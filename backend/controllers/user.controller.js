@@ -17,84 +17,104 @@ const generatingAccessAndRefreshTokens = async (userId) => {
 };
 
 export const signupUser = async (req, res) => {
-  const { username, email, password, fullName } = req.body;
+  try {
+    const { username, email, password, fullName } = req.body;
 
-  if (!username || !email || !password || !fullName) {
-    return res.status(400).json({ message: "Please enter all fields" });
-  }
+    if (!username || !email || !password || !fullName) {
+      return res.status(400).json({ message: "Please enter all fields" });
+    }
 
-  const ExistedUser = await User.findOne({ $or: [{ email }, { username }] });
-  if (ExistedUser) {
-    return res.status(400).json({ message: "User already exists" });
-  }
-  const Password = await bcrypt.hash(password, 12);
+    const ExistedUser = await User.findOne({ $or: [{ email }, { username }] });
+    if (ExistedUser) {
+      return res.status(400).json({ message: "User already exists" });
+    }
+    const Password = await bcrypt.hash(password, 12);
 
-  const user = await User.create({
-    username: username.toLowerCase(),
-    email: email.toLowerCase(),
-    password: Password,
-    fullName,
-  });
-  const createdUser = await User.findById(user._id).select(
-    "-password -refreshToken",
-  );
-  if (!createdUser) {
-    return res.status(500).json({ message: "User not created" });
+    const user = await User.create({
+      username: username.toLowerCase(),
+      email: email.toLowerCase(),
+      password: Password,
+      fullName,
+    });
+    const createdUser = await User.findById(user._id).select(
+      "-password -refreshToken",
+    );
+    if (!createdUser) {
+      return res.status(500).json({ message: "User not created" });
+    }
+
+    const { accessToken, refreshToken } =
+      await generatingAccessAndRefreshTokens(user._id);
+    const options = {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+      path: "/",
+    };
+    return res
+      .status(200)
+      .cookie("refreshToken", refreshToken, options)
+      .cookie("accessToken", accessToken, options)
+      .json({
+        message: "User signed up successfully",
+        user: createdUser,
+      });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal Server Error" });
   }
-  return res.status(200).json({
-    message: "User signed up successfully",
-    user: createdUser,
-  });
 };
 
 export const loginUser = async (req, res) => {
-  const { emailOrUsername, password } = req.body;
+  try {
+    const { emailOrUsername, password } = req.body;
 
-  if (!emailOrUsername || !password) {
-    return res
-      .status(400)
-      .json({ message: "Please enter email or username atleast !!" });
-  }
-  const emailOrUser = emailOrUsername.toLowerCase();
-  const user = await User.findOne({
-    $or: [{ email: emailOrUser }, { username: emailOrUser }],
-  });
-  if (!user) {
-    return res
-      .status(400)
-      .json({ message: "User does not exist !! Please Signup first !!" });
-  }
-  const isPasswordCorrect = await user.checkPassword(password);
-
-  if (!isPasswordCorrect) {
-    return res.status(400).json({ message: "Invalid credentials" });
-  }
-  const { accessToken, refreshToken } = await generatingAccessAndRefreshTokens(
-    user._id,
-  );
-
-  const loggedInUser = await User.findById(user._id).select(
-    "-password -refreshToken",
-  );
-  if (!loggedInUser) {
-    return res.status(500).json({ message: "User not found" });
-  }
-  const options = {
-    httpOnly: true,
-    secure: true,
-    sameSite: "None",
-    path: "/",
-  };
-  res
-    .status(200)
-    .cookie("refreshToken", refreshToken, options)
-    .cookie("accessToken", accessToken, options)
-    .json({
-      message: "User logged in successfully",
-      user: loggedInUser,
-      refreshToken,
-      accessToken,
+    if (!emailOrUsername || !password) {
+      return res
+        .status(400)
+        .json({ message: "Please enter email or username atleast !!" });
+    }
+    const emailOrUser = emailOrUsername.toLowerCase();
+    const user = await User.findOne({
+      $or: [{ email: emailOrUser }, { username: emailOrUser }],
     });
+    if (!user) {
+      return res
+        .status(400)
+        .json({ message: "User does not exist !! Please Signup first !!" });
+    }
+    const isPasswordCorrect = await user.checkPassword(password);
+
+    if (!isPasswordCorrect) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+    const { accessToken, refreshToken } =
+      await generatingAccessAndRefreshTokens(user._id);
+
+    const loggedInUser = await User.findById(user._id).select(
+      "-password -refreshToken",
+    );
+    if (!loggedInUser) {
+      return res.status(500).json({ message: "User not found" });
+    }
+    const options = {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+      path: "/",
+    };
+    res
+      .status(200)
+      .cookie("refreshToken", refreshToken, options)
+      .cookie("accessToken", accessToken, options)
+      .json({
+        message: "User logged in successfully",
+        user: loggedInUser,
+        refreshToken,
+        accessToken,
+      });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
 };
 
 export const logoutUser = async (req, res) => {
@@ -255,14 +275,10 @@ export const editUserProfile = async (req, res) => {
   const ExistedEmail = await User.findOne({ email });
 
   if (ExistedUser && ExistedUser._id.toString() !== id) {
-    return res
-      .status(400)
-      .json({ message: "Username already exists" });
+    return res.status(400).json({ message: "Username already exists" });
   }
   if (ExistedEmail && ExistedEmail._id.toString() !== id) {
-    return res
-      .status(400)
-      .json({ message: "Email already exists" });
+    return res.status(400).json({ message: "Email already exists" });
   }
   if (username) {
     user.username = username;
@@ -339,13 +355,13 @@ export const updateAddress = async (req, res) => {
 export const adminAccess = async (req, res) => {
   const { email, message, businessName, userId } = req.body;
 
-  if(!email || !message || !businessName) {
+  if (!email || !message || !businessName) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
   try {
     const user = await User.findOne({ _id: req.user._id });
-    
+
     if (!user) {
       return res.status(400).json({
         message: "unauthorized",
@@ -376,7 +392,7 @@ export const adminAccess = async (req, res) => {
     });
 
     return res.status(200).json({
-      message: "successfully send"
+      message: "successfully send",
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
