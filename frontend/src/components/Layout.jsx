@@ -12,7 +12,7 @@ const Layout = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
-  const isLogined = useSelector((state) => state.auth.status);
+  const isLogin = useSelector((state) => state.auth.status);
   const loadingState = useSelector((state) => state.auth.isLoading);
   const getUser = async () => {
     try {
@@ -58,11 +58,11 @@ const Layout = () => {
   };
 
   useEffect(() => {
-    if (!isLogined) {
+    if (!isLogin) {
       getUser();
       getWishlistDetails();
     }
-  }, [isLogined]);
+  }, [isLogin]);
 
   return (
     <div>

@@ -133,13 +133,11 @@ const Explore = () => {
       </div>
     </div>
   ) : (
-    loading && (
       <img
         src="https://i.gifer.com/ZKZg.gif"
         className="size-12 fixed top-1/2 left-1/2 z-50"
         alt="Loading..."
       />
-    )
   );
 };
 
