@@ -23,7 +23,7 @@ const Explore = () => {
   const dispatch = useDispatch();
   const [selected, setSelected] = useState("Electronics");
   const [filteredProducts, setFilteredProducts] = useState([]);
-  const [load, setLoad] = useState(false);
+  const [load, setLoad] = useState(true);
   const Products = useSelector((state) => state.products.exploreProducts);
 
   const fetchExploreProducts = async () => {
@@ -41,6 +41,7 @@ const Explore = () => {
   };
 
   const filterProducts = () => {
+    setLoad(false);
     if (selected === "Electronics") {
       setFilteredProducts(Products.electronics || []);
     } else if (selected === "Fashion") {
