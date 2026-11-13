@@ -31,7 +31,6 @@ const Explore = () => {
       setLoad(true);
       const { data } = await api.get("/api/product/exploreproducts");
       dispatch(storeExploreProducts({ exploreProducts: data.products }));
-      filterProducts();
       toast.success("Products fetched successfully");
     } catch (error) {
       console.log(error);
